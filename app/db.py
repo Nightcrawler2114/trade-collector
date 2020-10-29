@@ -1,25 +1,25 @@
 import motor.motor_asyncio
 
 from settings import DATABASE_URL
-
 from schemas import TransactionBase
 
-# mongodb+srv://vladmongo:vladmongo@cluster0.5fu91.mongodb.net/test
+client = motor.motor_asyncio.AsyncIOMotorClient(DATABASE_URL)
 
-client = motor.motor_asyncio.AsyncIOMotorClient('mongodb+srv://vladmongo:vladmongo@cluster0.5fu91.mongodb.net/test')
-
-db = client.vladmongo
+db = client.trade_collection
 collection = db.trades
 
-class DatabaseHandler():
+
+class DatabaseHandler:
 
     def __init__(self):
 
         self.db = db
         self.collection = collection
 
-    async def add_trade_to_db(self, data: dict):
+    async def add_trade_to_db(self, transaction: TransactionBase) -> None:
 
-        model = TransactionBase(**data)
+        count = await self.collection.count_documents(transaction.__dict__)
 
-        await self.collection.insert_one(**model)
+        if count == 0:
+
+            await self.collection.insert_one(transaction.__dict__)
