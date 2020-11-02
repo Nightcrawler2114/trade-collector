@@ -1,8 +1,7 @@
 import asyncio
 
-from sockets import BitfinexStockHandler, BinanceStockHandler
-
 from settings import BITFINEX_API_URL, BINANCE_API_URL
+from sockets import BitfinexStockHandler, BinanceStockHandler
 
 
 async def main() -> None:

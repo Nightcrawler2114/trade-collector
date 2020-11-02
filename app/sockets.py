@@ -1,19 +1,21 @@
-import asyncio
-import websockets
-import json
 import datetime
+import json
+import websockets
 
 from pydantic import AnyUrl
-from typing import Any
+from websockets import WebSocketClientProtocol
 
-from schemas import TransactionBase
-
-from abstract import StockCollectorHandler
+try:
+    from abstract import StockCollectorHandler
+    from schemas import TransactionBase
+except ImportError:
+    from app.abstract import StockCollectorHandler
+    from app.schemas import TransactionBase
 
 
 class BitfinexStockHandler(StockCollectorHandler):
 
-    async def _establish_connection(self, url: AnyUrl) -> Any:
+    async def _establish_connection(self, url: AnyUrl) -> WebSocketClientProtocol:
 
         websocket = await websockets.connect(url)
 
@@ -21,7 +23,7 @@ class BitfinexStockHandler(StockCollectorHandler):
 
         return websocket
 
-    async def _receive_response(self, websocket: Any) -> str:
+    async def _receive_response(self, websocket: WebSocketClientProtocol) -> str:
 
         response = await websocket.recv()
 
@@ -37,13 +39,17 @@ class BitfinexStockHandler(StockCollectorHandler):
 
             return None
 
+        amount = json_response[2][3]
+
+        type_ = 'sale' if amount < 0 else 'purchase'
+
         model = TransactionBase(
                 market='Bitfinex',
                 transaction_id=json_response[2][0],
                 pair='BTC/USD',
-                volume=json_response[2][3],
+                volume=amount,
                 quantitiy=json_response[2][2],
-                type='sale',
+                type=type_,
                 date=date,
         )
 
@@ -54,7 +60,7 @@ class BitfinexStockHandler(StockCollectorHandler):
 
 class BinanceStockHandler(StockCollectorHandler):
 
-    async def _establish_connection(self, url: AnyUrl) -> Any:
+    async def _establish_connection(self, url: AnyUrl) -> WebSocketClientProtocol:
 
         websocket = await websockets.connect(url)
 
@@ -62,7 +68,7 @@ class BinanceStockHandler(StockCollectorHandler):
 
         return websocket
 
-    async def _receive_response(self, websocket: Any) -> str:
+    async def _receive_response(self, websocket: WebSocketClientProtocol) -> str:
 
         response = await websocket.recv()
 
@@ -76,13 +82,15 @@ class BinanceStockHandler(StockCollectorHandler):
 
             date = datetime.datetime.fromtimestamp(json_response['T'] // 1000.0)
 
+            type_ = 'sale' if json_response['s'] else 'purchase'
+
             model = TransactionBase(
                 market='Binance',
                 transaction_id=json_response['t'],
                 pair=json_response['s'],
                 volume=json_response['p'],
                 quantitiy=json_response['q'],
-                type='sale',
+                type=type_,
                 date=date,
             )
 

@@ -1,7 +1,11 @@
 import motor.motor_asyncio
 
-from settings import DATABASE_URL
-from schemas import TransactionBase
+try:
+    from schemas import TransactionBase
+    from settings import DATABASE_URL
+except ImportError:
+    from app.schemas import TransactionBase
+    from app.settings import DATABASE_URL
 
 client = motor.motor_asyncio.AsyncIOMotorClient(DATABASE_URL)
 

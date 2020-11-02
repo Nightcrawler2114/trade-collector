@@ -1,11 +1,15 @@
 import asyncio
 
 from pydantic import AnyUrl
-from typing import Any
 
-from schemas import TransactionBase
-from db import DatabaseHandler
+from websockets import WebSocketClientProtocol
 
+try:
+    from db import DatabaseHandler
+    from schemas import TransactionBase
+except ImportError:
+    from app.db import DatabaseHandler
+    from app.schemas import TransactionBase
 
 db = DatabaseHandler()
 
@@ -31,10 +35,10 @@ class StockCollectorHandler:
 
             self._save_to_db(model)
 
-    async def _establish_connection(self, url: AnyUrl) -> Any:
+    async def _establish_connection(self, url: AnyUrl) -> WebSocketClientProtocol:
         pass
 
-    async def _receive_response(self, websocket: Any) -> str:
+    async def _receive_response(self, websocket:  WebSocketClientProtocol) -> str:
         pass
 
     async def _serialize(self, response: str) -> TransactionBase or None:

@@ -2,7 +2,10 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from enums import TransactionTypeEnum
+try:
+    from enums import TransactionTypeEnum
+except ImportError:
+    from app.enums import TransactionTypeEnum
 
 
 class TransactionBase(BaseModel):
