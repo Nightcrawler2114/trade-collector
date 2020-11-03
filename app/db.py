@@ -12,6 +12,9 @@ client = motor.motor_asyncio.AsyncIOMotorClient(DATABASE_URL)
 db = client.trade_collection
 collection = db.trades
 
+# indexes
+collection.create_index(['market', 'pair'])
+
 
 class DatabaseHandler:
 
