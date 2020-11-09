@@ -2,18 +2,15 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-try:
-    from enums import TransactionTypeEnum
-except ImportError:
-    from app.enums import TransactionTypeEnum
+from app.enums import TransactionTypeEnum, MarketEnum
 
 
 class TransactionBase(BaseModel):
-    market: str
+    market: MarketEnum
     transaction_id: str
     pair: str
     volume: float
-    quantitiy: float
+    quantity: float
     type: TransactionTypeEnum
     date: datetime
 
