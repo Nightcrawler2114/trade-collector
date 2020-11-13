@@ -1,7 +1,7 @@
 import motor.motor_asyncio
 
-from settings import DATABASE_URL
-from schemas import TransactionBase
+from app.schemas import TransactionBase
+from app.settings import DATABASE_URL
 
 client = motor.motor_asyncio.AsyncIOMotorClient(DATABASE_URL)
 
@@ -18,8 +18,9 @@ class DatabaseHandler:
 
     async def add_trade_to_db(self, transaction: TransactionBase) -> None:
 
-        count = await self.collection.count_documents(transaction.__dict__)
+        count = await self.collection.count_documents(transaction.dict())
 
         if count == 0:
 
-            await self.collection.insert_one(transaction.__dict__)
+            await self.collection.insert_one(transaction.dict())
+
